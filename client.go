@@ -12,6 +12,9 @@ const (
 	AlgoExplorerTestnet = "https://api.testnet.algoexplorer.io"
 	AlgoExplorerMainnet = "https://api.algoexplorer.io"
 
+	IndexerTestnet = "https://testnet.algoexplorerapi.io"
+	IndexerMainnet = "https://algoexplorerapi.io"
+
 	TestnetValidatorAppID = 21580889
 	MainnetValidatorAppID = 350338509
 )
