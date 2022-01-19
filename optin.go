@@ -42,7 +42,7 @@ func PrepareAssetOptIn(assetID uint64, address string, sp types.SuggestedParams)
 	if err != nil {
 		return nil, err
 	}
-	for i, tx := range txns {
+	for i := 0; i < len(txns); i++ {
 		txns[i].Group = gid
 	}
 
