@@ -172,3 +172,8 @@ func (tg *TransactionGroup) RawSignedTransactions() []byte {
 
 	return sg
 }
+
+// Transactions ...
+func (tg *TransactionGroup) Transactions() []types.Transaction {
+	return tg.txns
+}
