@@ -10,7 +10,8 @@ import (
 
 // Client ...
 type Client struct {
-	ac             *algod.Client
+	node *Node
+
 	validatorAppID uint64
 	address        string
 	assetsCache    map[uint64]models.Asset
@@ -19,7 +20,7 @@ type Client struct {
 // NewClient ...
 func NewClient(ac *algod.Client, validatorAppID uint64, userAddress string) *Client {
 	return &Client{
-		ac:             ac,
+		node:           NewNode(ac, nil),
 		validatorAppID: validatorAppID,
 		address:        userAddress,
 		assetsCache:    map[uint64]models.Asset{},
@@ -37,7 +38,7 @@ func (c *Client) PrepareAppOptInTxns(ctx context.Context, address string) ([]typ
 		address = c.address
 	}
 
-	params, err := c.ac.SuggestedParams().Do(ctx)
+	params, err := c.node.ac.SuggestedParams().Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (c *Client) IsOptedIn(ctx context.Context, address string) (bool, error) {
 		address = c.address
 	}
 
-	acc, err := c.ac.AccountInformation(address).Do(ctx)
+	acc, err := c.node.ac.AccountInformation(address).Do(ctx)
 	if err != nil {
 		return false, err
 	}

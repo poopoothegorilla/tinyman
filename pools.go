@@ -157,7 +157,7 @@ func (p *Pool) Refresh(ctx context.Context) error {
 		return err
 	}
 
-	accInfo, err := p.Client.ac.AccountInformation(poolAddress.String()).Do(ctx)
+	accInfo, err := p.Client.node.ac.AccountInformation(poolAddress.String()).Do(ctx)
 	if err != nil {
 		return err
 	}
@@ -337,7 +337,7 @@ func (p *Pool) PoolPosition(ctx context.Context, address string) (PoolPosition, 
 		address = p.Client.address
 	}
 
-	acc, err := p.Client.ac.AccountInformation(address).Do(ctx)
+	acc, err := p.Client.node.ac.AccountInformation(address).Do(ctx)
 	if err != nil {
 		return PoolPosition{}, err
 	}
@@ -367,7 +367,7 @@ func (p *Pool) PrepareSwapTransactions(ctx context.Context, assetInID, amountIn,
 		address = p.Client.address
 	}
 
-	txParams, err := p.Client.ac.SuggestedParams().Do(ctx)
+	txParams, err := p.Client.node.ac.SuggestedParams().Do(ctx)
 	if err != nil {
 		return nil, err
 	}
