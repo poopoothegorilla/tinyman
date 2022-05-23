@@ -38,6 +38,7 @@ func (c *Client) PrepareAppOptInTxns(ctx context.Context, address string) ([]typ
 		address = c.address
 	}
 
+	c.node.Take()
 	params, err := c.node.ac.SuggestedParams().Do(ctx)
 	if err != nil {
 		return nil, err
@@ -56,6 +57,7 @@ func (c *Client) IsOptedIn(ctx context.Context, address string) (bool, error) {
 		address = c.address
 	}
 
+	c.node.Take()
 	acc, err := c.node.ac.AccountInformation(address).Do(ctx)
 	if err != nil {
 		return false, err

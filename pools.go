@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/algorand/go-algorand-sdk/client/v2/algod"
 	"github.com/algorand/go-algorand-sdk/client/v2/common/models"
 )
 
@@ -70,7 +69,7 @@ type PoolPosition struct {
 }
 
 // GetPoolInfo ...
-func GetPoolInfo(ctx context.Context, ac *algod.Client, validatorAppID, asset1ID, asset2ID uint64) (Pool, error) {
+func GetPoolInfo(ctx context.Context, node *Node, validatorAppID, asset1ID, asset2ID uint64) (Pool, error) {
 	poolLogicSigAccount, err := getPoolLogicSigAccount(validatorAppID, asset1ID, asset2ID)
 	if err != nil {
 		return Pool{}, err
@@ -81,7 +80,8 @@ func GetPoolInfo(ctx context.Context, ac *algod.Client, validatorAppID, asset1ID
 		return Pool{}, err
 	}
 
-	accInfo, err := ac.AccountInformation(poolAddress.String()).Do(ctx)
+	node.Take()
+	accInfo, err := node.ac.AccountInformation(poolAddress.String()).Do(ctx)
 	if err != nil {
 		return Pool{}, err
 	}
@@ -90,7 +90,7 @@ func GetPoolInfo(ctx context.Context, ac *algod.Client, validatorAppID, asset1ID
 		return Pool{}, err
 	}
 
-	p.Client = NewClient(ac, validatorAppID, "")
+	p.Client = NewClient(node.ac, validatorAppID, "")
 
 	return p, nil
 }
@@ -157,6 +157,7 @@ func (p *Pool) Refresh(ctx context.Context) error {
 		return err
 	}
 
+	p.Client.node.Take()
 	accInfo, err := p.Client.node.ac.AccountInformation(poolAddress.String()).Do(ctx)
 	if err != nil {
 		return err
@@ -337,6 +338,7 @@ func (p *Pool) PoolPosition(ctx context.Context, address string) (PoolPosition, 
 		address = p.Client.address
 	}
 
+	p.Client.node.Take()
 	acc, err := p.Client.node.ac.AccountInformation(address).Do(ctx)
 	if err != nil {
 		return PoolPosition{}, err
@@ -367,6 +369,7 @@ func (p *Pool) PrepareSwapTransactions(ctx context.Context, assetInID, amountIn,
 		address = p.Client.address
 	}
 
+	p.Client.node.Take()
 	txParams, err := p.Client.node.ac.SuggestedParams().Do(ctx)
 	if err != nil {
 		return nil, err
