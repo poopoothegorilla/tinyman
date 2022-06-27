@@ -150,13 +150,17 @@ func FetchPool(ctx context.Context, c *Client, asset1ID, asset2ID uint64) (*Pool
 	p.Asset1Decimals = asset1Info.Params.Decimals
 	p.Asset1UnitName = asset1Info.Params.UnitName
 
-	p.Client.node.Take()
-	asset2Info, err := p.Client.node.ac.GetAssetByID(p.Asset2ID).Do(ctx)
-	if err != nil {
-		return nil, err
+	p.Asset2UnitName = "Algo"
+	p.Asset2Decimals = 6
+	if p.Asset2ID != 0 {
+		p.Client.node.Take()
+		asset2Info, err := p.Client.node.ac.GetAssetByID(p.Asset2ID).Do(ctx)
+		if err != nil {
+			return nil, err
+		}
+		p.Asset2Decimals = asset2Info.Params.Decimals
+		p.Asset2UnitName = asset2Info.Params.UnitName
 	}
-	p.Asset2Decimals = asset2Info.Params.Decimals
-	p.Asset2UnitName = asset2Info.Params.UnitName
 
 	if err := p.Refresh(ctx); err != nil {
 		return nil, err
