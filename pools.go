@@ -110,6 +110,10 @@ type Pool struct {
 
 	Asset1ID           uint64
 	Asset2ID           uint64
+	Asset1Decimals     uint64
+	Asset2Decimals     uint64
+	Asset1UnitName     string
+	Asset2UnitName     string
 	LiquidityAssetID   uint64
 	LiquidityAssetName string
 	Asset1Reserves     uint64
@@ -137,6 +141,22 @@ func FetchPool(ctx context.Context, c *Client, asset1ID, asset2ID uint64) (*Pool
 		p.Asset1ID = asset1ID
 		p.Asset2ID = asset2ID
 	}
+
+	p.Client.node.Take()
+	asset1Info, err := p.Client.node.ac.GetAssetByID(p.Asset1ID).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p.Asset1Decimals = asset1Info.Params.Decimals
+	p.Asset1UnitName = asset1Info.Params.UnitName
+
+	p.Client.node.Take()
+	asset2Info, err := p.Client.node.ac.GetAssetByID(p.Asset2ID).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	p.Asset2Decimals = asset2Info.Params.Decimals
+	p.Asset2UnitName = asset2Info.Params.UnitName
 
 	if err := p.Refresh(ctx); err != nil {
 		return nil, err
@@ -244,6 +264,16 @@ func (p *Pool) Prices() (asset1Price, asset2Price float64) {
 	asset2Price = float64(p.Asset1Reserves) / float64(p.Asset2Reserves)
 
 	return asset1Price, asset2Price
+}
+
+// MaximumAmount ...
+func (p *Pool) MaximumAmount(assetID uint64, targetPrice float64) uint64 {
+	amt := targetPrice * float64(p.Asset2Reserves)
+	if assetID == p.Asset2ID {
+		amt = targetPrice * float64(p.Asset1Reserves)
+	}
+
+	return uint64(amt)
 }
 
 // FixedInputSwapQuote ...
